@@ -10,6 +10,7 @@ import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 /**
  * Created by fylder on 2017/1/18.
@@ -33,8 +34,14 @@ public class MyDataFetcher implements DataFetcher<InputStream> {
     @Override
     public InputStream loadData(Priority priority) throws Exception {
         Request request = new Request.Builder().url(url).build();
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+
+        // 新建 HttpLoggingInterceptor 对象
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        // 设置日志等级
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .addInterceptor(new MyProgressInterceptor(listener))
+                .addInterceptor(logging)
                 .build();
         try {
             progressCall = okHttpClient.newCall(request);
